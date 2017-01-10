@@ -79,6 +79,7 @@ function downloadAsset(record, containerName, blobName) {
         retrieved,
         blobName = '201612222003.mp4',
         containerName = 'asset-0004afa0-d600-4fdd-a364-3a7b9f32676c';
+
     var response = blobSvc.getBlobToLocalFile(containerName, blobName, __dirname + '/contents/' + blobName, function (error, result, response) {
         if (!error && response && response.isSuccessful) {
             console.log('downloaded video having ID: ' + record.ID)
@@ -91,10 +92,6 @@ function downloadAsset(record, containerName, blobName) {
             console.log('uploading vtt for video ' + record.ID + ' to blob...')
             var location = __dirname + '/files/';
             uploadVTTToBlob(location);
-            callback(record, res.status);
-            return {
-                status: 1
-            };
         } else {
             return {
                 status: 0
