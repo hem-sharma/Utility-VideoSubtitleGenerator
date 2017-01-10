@@ -57,7 +57,7 @@ function processVideo(record, callback) {
         containerName = 'asset-0004afa0-d600-4fdd-a364-3a7b9f32676c';
     //TODO: dynamic container and blob name for file to be downloaded
 
-    var downloaded = downloadAsset(containerName, blobName);
+    var downloaded = downloadAsset(record, containerName, blobName);
 }
 
 function processCallback(item, res) {
@@ -72,7 +72,13 @@ function processCallback(item, res) {
         });
 }
 
-function downloadAsset(containerName, blobName) {
+function downloadAsset(record, containerName, blobName) {
+    var contentUrl = record.ContentUrl,
+        sourceLanguage = record.TranslateLanguage,
+        destinationLanguage = record.TranslateLanguage,
+        retrieved,
+        blobName = '201612222003.mp4',
+        containerName = 'asset-0004afa0-d600-4fdd-a364-3a7b9f32676c';
     var response = blobSvc.getBlobToLocalFile(containerName, blobName, __dirname + '/contents/' + blobName, function (error, result, response) {
         if (!error && response && response.isSuccessful) {
             console.log('downloaded video having ID: ' + record.ID)
