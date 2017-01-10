@@ -31,11 +31,11 @@ function fetchRecords() {
                         processCallback(recordset[i], res);
                     })
                 }
-                while (toBeProcessed !== 0) {
+                while (toBeProcessed === 0) {
                     console.log('files pending to process in current db request: ' + toBeProcessed)
-                    break;
+                    fetchRecords();
                 }
-                fetchRecords();
+                
             }).catch(function (err) {
                 console.log(err);
                 setTimeout(function () {
