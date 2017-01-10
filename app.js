@@ -54,10 +54,10 @@ function processVideo(record, callback) {
         sourceLanguage = record.TranslateLanguage,
         destinationLanguage = record.TranslateLanguage,
         retrieved,
-        // blobName = '201612222003.mp4',
-        blobName = 'Hindi_indexing_test.mp4',
-        // containerName = 'asset-0004afa0-d600-4fdd-a364-3a7b9f32676c';
-        containerName = 'asset-b29e45b2-afd3-4760-bdc1-22b25c96e65e';
+        blobName = '201612222003.mp4',
+        // blobName = 'Hindi_indexing_test.mp4',
+        containerName = 'asset-0004afa0-d600-4fdd-a364-3a7b9f32676c';
+        // containerName = 'asset-b29e45b2-afd3-4760-bdc1-22b25c96e65e';
     //TODO: dynamic container and blob name for file to be downloaded
 
     var downloaded = downloadAsset(record, containerName, blobName);
@@ -80,8 +80,6 @@ function downloadAsset(record, containerName, blobName) {
         sourceLanguage = 'hi', //record.TranslateLanguage,
         destinationLanguage = 'hi', //record.TranslateLanguage,
         retrieved,
-        blobName = 'Hindi_indexing_test.mp4',
-        containerName = 'asset-b29e45b2-afd3-4760-bdc1-22b25c96e65e';
 
     var response = blobSvc.getBlobToLocalFile(containerName, blobName, __dirname + '/contents/' + blobName, function (error, result, response) {
         if (!error && response && response.isSuccessful) {
