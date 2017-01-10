@@ -58,6 +58,7 @@ function processVideo(record, callback) {
         sourceLanguage = record.TranslateLanguage,
         destinationLanguage = record.TranslateLanguage,
         retrieved,
+        // blobName = '201612222003.mp4',
         blobName = 'Hindi_indexing_test.mp4',
         // containerName = 'asset-0004afa0-d600-4fdd-a364-3a7b9f32676c';
         containerName = 'asset-b29e45b2-afd3-4760-bdc1-22b25c96e65e';
@@ -80,11 +81,11 @@ function processCallback(item, res) {
 
 function downloadAsset(record, containerName, blobName) {
     var contentUrl = record.ContentUrl,
-        sourceLanguage = record.TranslateLanguage,
-        destinationLanguage = record.TranslateLanguage,
+        sourceLanguage = 'hi', //record.TranslateLanguage,
+        destinationLanguage = 'hi', //record.TranslateLanguage,
         retrieved,
-        blobName = '201612222003.mp4',
-        containerName = 'asset-0004afa0-d600-4fdd-a364-3a7b9f32676c';
+        blobName = 'Hindi_indexing_test.mp4',
+        containerName = 'asset-b29e45b2-afd3-4760-bdc1-22b25c96e65e';
 
     var response = blobSvc.getBlobToLocalFile(containerName, blobName, __dirname + '/contents/' + blobName, function (error, result, response) {
         if (!error && response && response.isSuccessful) {
