@@ -123,5 +123,6 @@ function uploadVTTToBlob(loc, blobName) {
 function generateVtt(loc, cmd) {
     console.log('running autosub for file having location: ' + loc)
     var output = execSync(cmd);
+    console.log(output)
     return output;
 }
