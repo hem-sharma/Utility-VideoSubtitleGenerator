@@ -1,0 +1,11 @@
+{
+    "port": "8080",
+    "sqlUserName": "sa",
+    "sqlPassword": "Password@123",
+    "sqlServerHost": "52.187.79.197",
+    "databaseName": "MediaZenieTest",
+    "mediaStorageAccountName": "mediazeniemediaservice",
+    "mediaStorageAccountKey": "n4rE/05qckA1NGWdCOvRp44Ieoxf3vpca+eArPys3wAP0YNMNdefOkhX4hQxeGi5f+TqDJth3YIfLYPAGLGMzA==",
+    "fetchRecordsCmd": "select * from posts where IsTranslated=0",
+    "updateRecordCmd": "update posts set IsVttGenerated=1 where ID="
+}
