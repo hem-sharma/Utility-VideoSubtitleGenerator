@@ -79,7 +79,7 @@ function downloadAsset(record, containerName, blobName) {
     var contentUrl = record.ContentUrl,
         sourceLanguage = 'hi', //record.TranslateLanguage,
         destinationLanguage = 'hi', //record.TranslateLanguage,
-        retrieved,
+        retrieved;
 
     var response = blobSvc.getBlobToLocalFile(containerName, blobName, __dirname + '/contents/' + blobName, function (error, result, response) {
         if (!error && response && response.isSuccessful) {
