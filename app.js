@@ -85,7 +85,7 @@ function downloadAsset(record, containerName, blobName) {
             console.log('downloaded video having ID: ' + record.ID)
             var loc = __dirname + '/contents/' + blobName;
             console.log('running autosub...')
-            var cmd = 'autosub' + '-S ' + sourceLanguage + ' -F vtt' + ' ' + loc;
+            var cmd = 'autosub ' + '-S ' + sourceLanguage + ' -F vtt' + ' ' + loc;
             var response = generateVtt(loc, cmd);
             console.log('generated vtt response is : ' + response + ' for video having ID: ' + record.ID)
 
