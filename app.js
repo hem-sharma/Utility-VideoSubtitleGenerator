@@ -98,7 +98,7 @@ function downloadAsset(record, containerName, blobName) {
 
             console.log('uploading vtt for video ' + record.ID + ' to blob...')
             var location = __dirname + '/files/';
-            uploadVTTToBlob(location);
+            uploadVTTToBlob(location, blobName);
         } else {
             return {
                 status: 0
@@ -108,10 +108,21 @@ function downloadAsset(record, containerName, blobName) {
     return response;
 }
 
-function uploadVTTToBlob(loc) {
+function uploadVTTToBlob(loc, blobName) {
+    var containerCreationResponse = blobSvc.createContainerIfNotExists(config.vttContainerName, function (error, result, response) {
+        if (!error) {
+            console.log('container created successfully having named : ' + config.vttContainerName)
+        }
+    });
+
     console.log('uploading video to blob having location ' + loc)
-        //TODO: upload video to blob
-    console.log('uploaded vtt successfully');
+    blobSvc.createBlockBlobFromLocalFile(config.vttContainerName, blobName, loc, function (error, result, response) {
+        if (!error) {
+            console.log('uploaded file to blob having local location as ' + loc)
+        } else {
+            console.log('some error occured in uploading file having location: ' + loc)
+        }
+    });
     toBeProcessed -= 1;
 }
 
