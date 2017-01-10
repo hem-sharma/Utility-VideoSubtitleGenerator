@@ -17,12 +17,7 @@ console.log('vtt generator running at : ' + config.port);
 
 console.log('fetching records from database');
 
-do {
-    fetchRecords();
-}
-while (toBeProcessed !== 0)
-
-
+fetchRecords();
 
 function fetchRecords() {
 
@@ -36,10 +31,11 @@ function fetchRecords() {
                         processCallback(recordset[i], res);
                     })
                 }
-                // while (toBeProcessed === 0) {
-                //     console.log('last request processed successfully. fetching again...')
-                //     fetchRecords();
-                // }
+                while (toBeProcessed !== 0) {
+                    console.log('files pending to process in current db request: ' + toBeProcessed)
+                    break;
+                }
+                fetchRecords();
             }).catch(function (err) {
                 console.log(err);
                 setTimeout(function () {
