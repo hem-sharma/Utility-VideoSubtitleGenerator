@@ -16,7 +16,12 @@ var server = http.createServer(app).listen(config.port);
 console.log('vtt generator running at : ' + config.port);
 
 console.log('fetching records from database');
-fetchRecords();
+
+do {
+    fetchRecords();
+}
+while (toBeProcessed !== 0)
+
 
 
 function fetchRecords() {
@@ -31,10 +36,10 @@ function fetchRecords() {
                         processCallback(recordset[i], res);
                     })
                 }
-                while (toBeProcessed !== 0) {
-                    console.log('last request processed successfully. fetching again...')
-                    fetchRecords();
-                }
+                // while (toBeProcessed === 0) {
+                //     console.log('last request processed successfully. fetching again...')
+                //     fetchRecords();
+                // }
             }).catch(function (err) {
                 console.log(err);
                 setTimeout(function () {
