@@ -58,8 +58,9 @@ function processVideo(record, callback) {
         sourceLanguage = record.TranslateLanguage,
         destinationLanguage = record.TranslateLanguage,
         retrieved,
-        blobName = '201612222003.mp4',
-        containerName = 'asset-0004afa0-d600-4fdd-a364-3a7b9f32676c';
+        blobName = 'Hindi_indexing_test.mp4',
+        // containerName = 'asset-0004afa0-d600-4fdd-a364-3a7b9f32676c';
+        containerName = 'asset-b29e45b2-afd3-4760-bdc1-22b25c96e65e';
     //TODO: dynamic container and blob name for file to be downloaded
 
     var downloaded = downloadAsset(record, containerName, blobName);
