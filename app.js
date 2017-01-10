@@ -31,7 +31,7 @@ function fetchRecords() {
                         processCallback(recordset[i], res);
                     })
                 }
-                while (toBeProcessed === 0) {
+                while (toBeProcessed !== 0) {
                     console.log('last request processed successfully. fetching again...')
                     fetchRecords();
                 }
@@ -111,6 +111,5 @@ function uploadVTTToBlob(loc) {
 function generateVtt(loc, cmd) {
     console.log('running autosub for file having location: ' + loc)
     var output = execSync(cmd);
-    console.log(output);
-    return output.stdout;
+    return output;
 }
