@@ -9,7 +9,7 @@ var express = require('express'),
     blobSvc = azure.createBlobService(config.mediaStorageAccountName, config.mediaStorageAccountKey).withFilter(retryOperations),
     LINQ = require('node-linq').LINQ,
     toBeProcessed = 0,
-    execSync = require('sync-exec');;
+    execSync = require('sync-exec');
 
 
 var server = http.createServer(app).listen(config.port);
@@ -26,11 +26,11 @@ function fetchRecords() {
             new sql.Request().query(config.fetchRecordsCmd).then(function (recordset) {
                 console.log('found ' + recordset.length + ' records')
                 toBeProcessed = recordset.length;
-                var operation = new LINQ(recordset).All(function (item) {
-                    processVideo(item, function (res) {
-                        processCallback(item, res);
+                for (var i = 0; i < recordset.length; i++) {
+                    processVideo(recordset[i], function (res) {
+                        processCallback(recordset[i], res);
                     })
-                })
+                }
                 while (toBeProcessed === 0) {
                     console.log('last request processed successfully. fetching again...')
                     fetchRecords();
@@ -55,22 +55,9 @@ function processVideo(record, callback) {
         retrieved,
         blobName = '201612222003.mp4',
         containerName = 'asset-0004afa0-d600-4fdd-a364-3a7b9f32676c';
-        //TODO: dynamic container and blob name for file to be downloaded
+    //TODO: dynamic container and blob name for file to be downloaded
 
-    var downloaded = downloadAsset(containerName, blobName, function (res) {
-        console.log('downloaded video having ID: ' + record.ID)
-        var loc = __dirname + '/contents/' + blobName;
-        console.log('running autosub...')
-        var cmd = 'autosub' + '-S ' + sourceLanguage + ' -F vtt' + ' ' + loc;
-        var response = generateVtt(loc, cmd);
-        console.log('generated vtt response is : ' + response + ' for video having ID: ' + record.ID)
-
-        console.log('uploading vtt for video ' + record.ID + ' to blob...')
-        var location = __dirname + '/files/';
-        uploadVTTToBlob(location);
-        callback(record, res.status);
-
-    });
+    var downloaded = downloadAsset(containerName, blobName);
 }
 
 function processCallback(item, res) {
@@ -85,17 +72,30 @@ function processCallback(item, res) {
         });
 }
 
-function downloadAsset(containerName, blobName, callback) {
-    blobSvc.getBlobToLocalFile(containerName, blobName, __dirname + '/contents/' + blobName, function (error, result, response) {
-        if (!error) return callback({
-            status: 1
-        });
-        else {
-            return callback({
+function downloadAsset(containerName, blobName) {
+    var response = blobSvc.getBlobToLocalFile(containerName, blobName, __dirname + '/contents/' + blobName, function (error, result, response) {
+        if (!error && response && response.isSuccessful) {
+            console.log('downloaded video having ID: ' + record.ID)
+            var loc = __dirname + '/contents/' + blobName;
+            console.log('running autosub...')
+            var cmd = 'autosub' + '-S ' + sourceLanguage + ' -F vtt' + ' ' + loc;
+            var response = generateVtt(loc, cmd);
+            console.log('generated vtt response is : ' + response + ' for video having ID: ' + record.ID)
+
+            console.log('uploading vtt for video ' + record.ID + ' to blob...')
+            var location = __dirname + '/files/';
+            uploadVTTToBlob(location);
+            callback(record, res.status);
+            return {
+                status: 1
+            };
+        } else {
+            return {
                 status: 0
-            });
+            };
         }
     });
+    return response;
 }
 
 function uploadVTTToBlob(loc) {
