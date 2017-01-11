@@ -59,12 +59,12 @@ function fetchRecords() {
 function processVideo(record, callback) {
     SYNC(function () {
         console.log('processing video having ID: ' + record.ID);
-        var blobName = '201612222003.mp4',
+        var blobName = record.ContentBlobName,
             //blobName = 'Hindi_indexing_test.mp4',
-             //nb:cid:UUID:4ea75522-a190-43ce-a571-096f7e1f3856
-        //obama_201609071238119716.jpg
-        conSplitArray=record.AssetId.split(':'),
-            containerName = 'asset-'+conSplitArray[conSplitArray.length-1];
+            //nb:cid:UUID:4ea75522-a190-43ce-a571-096f7e1f3856
+            //obama_201609071238119716.jpg
+            conSplitArray = record.AssetId.split(':'),
+            containerName = 'asset-' + conSplitArray[conSplitArray.length - 1];
         //containerName = 'asset-b29e45b2-afd3-4760-bdc1-22b25c96e65e';
         //TODO: dynamic container and blob name for file to be downloaded
         var downloaded = downloadAsset(record, containerName, blobName);
@@ -88,7 +88,7 @@ function downloadAsset(record, containerName, blobName) {
         sourceLanguage = 'hi', //record.TranslateLanguage,
         destinationLanguage = 'hi', //record.TranslateLanguage,
         result, executed = false;
-       
+
     result = blobSvc.getBlobToLocalFile(containerName, blobName, __dirname + '/contents/' + blobName, function (error, result, response) {
         if (!error) {
             console.log('downloaded video having ID: ' + record.ID)
