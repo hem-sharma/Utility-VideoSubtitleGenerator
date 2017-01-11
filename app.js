@@ -60,9 +60,9 @@ function processVideo(record, callback) {
     SYNC(function () {
         console.log('processing video having ID: ' + record.ID);
         var blobName = '201612222003.mp4',
-            // blobName = 'Hindi_indexing_test.mp4',
+            //blobName = 'Hindi_indexing_test.mp4',
             containerName = 'asset-0004afa0-d600-4fdd-a364-3a7b9f32676c';
-        // containerName = 'asset-b29e45b2-afd3-4760-bdc1-22b25c96e65e';
+        //containerName = 'asset-b29e45b2-afd3-4760-bdc1-22b25c96e65e';
         //TODO: dynamic container and blob name for file to be downloaded
         var downloaded = downloadAsset(record, containerName, blobName);
     })
@@ -84,41 +84,48 @@ function downloadAsset(record, containerName, blobName) {
     var contentUrl = record.ContentUrl,
         sourceLanguage = 'hi', //record.TranslateLanguage,
         destinationLanguage = 'hi', //record.TranslateLanguage,
-        response, executed = false;
-    SYNC(function () {
-        response = blobSvc.getBlobToLocalFile(containerName, blobName, __dirname + '/contents/' + blobName, function (error, result, response) {
-            if (!error && response && response.isSuccessful) {
-                console.log('downloaded video having ID: ' + record.ID)
-                var loc = __dirname + '/contents/' + blobName;
-                console.log('running autosub...')
-                var cmd = 'autosub ' + '-S ' + sourceLanguage + ' -F vtt' + ' ' + loc;
-                var response = generateVtt(loc, cmd);
-                console.log('generated vtt for video having ID: ' + record.ID)
+        result, executed = false;
+    result = blobSvc.getBlobToLocalFile(containerName, blobName, __dirname + '/contents/' + blobName, function (error, result, response) {
+        if (!error) {
+            console.log('downloaded video having ID: ' + record.ID)
+            var loc = __dirname + '/contents/' + blobName;
+            console.log('running autosub...')
+            var cmd = 'autosub ' + '-S ' + sourceLanguage + ' -F vtt' + ' ' + loc;
+            var response = generateVtt(loc, cmd);
+            console.log('generated vtt for video having ID: ' + record.ID)
 
-                console.log('uploading vtt for video ' + record.ID + ' to blob...')
-                var location = __dirname + '/files/';
-                uploadVTTToBlob(location, blobName);
-                executed = true;
-            } else {
-                return {
-                    status: 0
-                };
-            }
-        });
-    })
-    while (!executed) {
-        continue;
-    }
-    return response;
+            console.log('uploading vtt for video ' + record.ID + ' to blob...')
+            var location = __dirname + '/files/';
+            var vttFileName = blobName.replace('mp4', 'vtt');
+            uploadVTTToBlob(location, vttFileName);
+            //for updating record to transcribed in database
+            processCallback(record, {
+                status: 1
+            });
+            executed = true;
+            return;
+        } else {
+            console.log('some error occured in downloading blob having ID : ' + record.ID)
+            return {
+                status: 0
+            };
+        }
+    });
+    //test for synchronous for videos one by one
+    // while (!executed) {
+    //     continue;
+    // }
+
+    return result;
 }
 
-function uploadVTTToBlob(loc, blobName) {
+function uploadVTTToBlob(loc, vttFileName) {
     SYNC(function () {
         var containerCreationResponse = blobSvc.createContainerIfNotExists(config.vttContainerName, function (error, result, response) {
             if (!error) {
                 console.log('container created successfully or exists already having name : ' + config.vttContainerName)
                 console.log('uploading vtt file to blob having location ' + loc)
-                blobSvc.createBlockBlobFromLocalFile(config.vttContainerName, blobName, loc + blobName, function (error, result, response) {
+                blobSvc.createBlockBlobFromLocalFile(config.vttContainerName, vttFileName, loc + vttFileName, function (error, result, response) {
                     if (!error) {
                         console.log('uploaded file to blob having local location as ' + loc)
 
