@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {
     "port": "8080",
     "sqlUserName": "sa",
@@ -10,4 +11,18 @@
     "updateRecordCmd": "update posts set IsVttGenerated=1 where ID=",
     "vttContainerName": "vttcontainer",
     "JobSchedulingInMS": 60000
+=======
+{
+    "port": "8080",
+    "sqlUserName": "sa",
+    "sqlPassword": "Password@123",
+    "sqlServerHost": "www.kazastream.com",
+    "databaseName": "MediaZenieNew",
+    "mediaStorageAccountName": "Kazastreammediaserv",
+    "mediaStorageAccountKey": "qXTSKLJicpPTZEbgvnY38jJtLKvskNwQoQG1xQuGdlrSQw1gCdlHK/e22Bd3toruFOEZTeA/QEv8UZEiWVO8iQ==",
+    "fetchRecordsCmd": "select * from posts where IsTranslated=0 and ContentBlobName is not null",
+    "updateRecordCmd": "update posts set IsVttGenerated=1 where ID=",
+    "vttContainerName": "vttcontainer",
+    "JobSchedulingInMS": 60000
+>>>>>>> 5ad8a76f088160dc922a72242177dba5eae1b13b
 }

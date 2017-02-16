@@ -17,7 +17,7 @@ console.log('vtt generator running at : ' + config.port);
 //start first and set job after scheduled time in config
 app.listen(config.port, function () {
     fetchRecords();
-    setTimeout(function () {
+    setInterval(function () {
         fetchRecords();
     }, config.JobSchedulingInMS);
 });
