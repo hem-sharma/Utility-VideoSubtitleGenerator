@@ -12,45 +12,40 @@ var express = require('express'),
     execSync = require('sync-exec'),
     SYNC = require('sync');
 
-
-var server = http.createServer(app).listen(config.port);
 console.log('vtt generator running at : ' + config.port);
 
-console.log('fetching records from database');
-fetchRecords();
+//start first and set job after scheduled time in config
+app.listen(config.port, function () {
+    fetchRecords();
+    setTimeout(function () {
+        fetchRecords();
+    }, config.JobSchedulingInMS);
+});
 
 function fetchRecords() {
     try {
-        sql.connect("mssql://" + config.sqlUserName + ":" + config.sqlPassword + "@" + config.sqlServerHost + "/" + config.databaseName).then(function () {
-            new sql.Request().query(config.fetchRecordsCmd).then(function (recordset) {
-                console.log('found ' + recordset.length + ' records')
-                toBeProcessed = recordset.length;
-                for (var item in recordset) {
-                    SYNC(function () {
-                        var response = processVideo(recordset[item])
-                            // function (res) {
-                            //  processCallback(recordset[item], res);
-                            //}
-                    })
-                }
+        if (toBeProcessed === 0) {
+            sql.connect("mssql://" + config.sqlUserName + ":" + config.sqlPassword + "@" + config.sqlServerHost + "/" + config.databaseName).then(function () {
+                new sql.Request().query(config.fetchRecordsCmd).then(function (recordset) {
+                    console.log('found ' + recordset.length + ' records')
+                    toBeProcessed = recordset.length;
+                    for (var item in recordset) {
+                        SYNC(function () {
+                            var response = processVideo(recordset[item])
+                        })
+                    }
+                    while (toBeProcessed === 0) {
+                        console.log('files pending to process in current db request: ' + toBeProcessed)
+                        fetchRecords();
+                    }
 
-                // for (var i = 0; i < recordset.length; i++) {
-                //     processVideo(recordset[i], function (res) {
-                //         processCallback(recordset[i], res);
-                //     })
-                // }
-                while (toBeProcessed === 0) {
-                    console.log('files pending to process in current db request: ' + toBeProcessed)
-                    fetchRecords();
-                }
-
-            }).catch(function (err) {
-                console.log(err);
-                setTimeout(function () {
-                    fetchRecords()
-                }, 50000);
+                }).catch(function (err) {
+                    console.log(err);
+                });
             });
-        });
+        } else {
+            console.log('processing previous records..');
+        }
     } catch (e) {
         console.log(e);
     }
@@ -60,13 +55,8 @@ function processVideo(record, callback) {
     SYNC(function () {
         console.log('processing video having ID: ' + record.ID);
         var blobName = record.ContentBlobName,
-            //blobName = 'Hindi_indexing_test.mp4',
-            //nb:cid:UUID:4ea75522-a190-43ce-a571-096f7e1f3856
-            //obama_201609071238119716.jpg
             conSplitArray = record.AssetId.split(':'),
             containerName = 'asset-' + conSplitArray[conSplitArray.length - 1];
-        //containerName = 'asset-b29e45b2-afd3-4760-bdc1-22b25c96e65e';
-        //TODO: dynamic container and blob name for file to be downloaded
         var downloaded = downloadAsset(record, containerName, blobName);
     })
 }
@@ -85,8 +75,8 @@ function processCallback(item, res) {
 
 function downloadAsset(record, containerName, blobName) {
     var contentUrl = record.ContentUrl,
-        sourceLanguage = 'hi', //record.TranslateLanguage,
-        destinationLanguage = 'hi', //record.TranslateLanguage,
+        sourceLanguage = record.TranslateLanguage,
+        destinationLanguage = record.TranslateLanguage,
         result, executed = false;
 
     result = blobSvc.getBlobToLocalFile(containerName, blobName, __dirname + '/contents/' + blobName, function (error, result, response) {
@@ -100,7 +90,7 @@ function downloadAsset(record, containerName, blobName) {
 
             console.log('uploading vtt for video ' + record.ID + ' to blob...')
             var location = __dirname + '/files/';
-            var vttFileName = blobName.replace('mp4', 'vtt');
+            var vttFileName = record.ID.concat('.vtt');
             uploadVTTToBlob(location, vttFileName);
             //for updating record to transcribed in database
             processCallback(record, {
@@ -115,11 +105,6 @@ function downloadAsset(record, containerName, blobName) {
             };
         }
     });
-    //test for synchronous for videos one by one
-    // while (!executed) {
-    //     continue;
-    // }
-
     return result;
 }
 

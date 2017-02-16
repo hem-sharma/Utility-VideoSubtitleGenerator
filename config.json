@@ -2,11 +2,12 @@
     "port": "8080",
     "sqlUserName": "sa",
     "sqlPassword": "Password@123",
-    "sqlServerHost": "52.187.79.197",
-    "databaseName": "MediaZenieTest",
-    "mediaStorageAccountName": "mediazeniemediaservice",
-    "mediaStorageAccountKey": "n4rE/05qckA1NGWdCOvRp44Ieoxf3vpca+eArPys3wAP0YNMNdefOkhX4hQxeGi5f+TqDJth3YIfLYPAGLGMzA==",
-    "fetchRecordsCmd": "select * from posts where IsTranslated=0 and ContentBlobName not null",
+    "sqlServerHost": "www.kazastream.com",
+    "databaseName": "MediaZenieNew",
+    "mediaStorageAccountName": "Kazastreammediaserv",
+    "mediaStorageAccountKey": "qXTSKLJicpPTZEbgvnY38jJtLKvskNwQoQG1xQuGdlrSQw1gCdlHK/e22Bd3toruFOEZTeA/QEv8UZEiWVO8iQ==",
+    "fetchRecordsCmd": "select * from posts where IsTranslated=0 and ContentBlobName is not null",
     "updateRecordCmd": "update posts set IsVttGenerated=1 where ID=",
-    "vttContainerName": "vttcontainer"
+    "vttContainerName": "vttcontainer",
+    "JobSchedulingInMS": 60000
 }
