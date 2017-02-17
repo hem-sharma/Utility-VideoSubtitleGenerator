@@ -12,7 +12,7 @@ var express = require('express'),
     execSync = require('sync-exec'),
     SYNC = require('sync');
 
-console.log('vtt generator running at : ' + config.port, new Date());
+console.log('subtitle generator running at : ' + config.port, new Date());
 
 //blobSvc.logger.level = azure.Logger.LogLevels.DEBUG;//for enabling storage logging
 
@@ -35,11 +35,6 @@ function fetchRecords() {
                             var response = processVideo(recordset[item])
                         })
                     }
-                    while (toBeProcessed === 0) {
-                        console.log('files pending to process in current db request: ' + toBeProcessed, new Date())
-                        fetchRecords();
-                    }
-
                 }).catch(function (err) {
                     console.log(err);
                 });
@@ -89,13 +84,13 @@ function downloadAsset(record, containerName, blobName) {
             console.log('running autosub...', new Date())
             var cmd = 'autosub ' + '-S ' + sourceLanguage + ' -F ' + config.SubtitleGenerationFormat + ' ' + loc;
             var response = generateVtt(loc, cmd);
-            console.log('generated vtt for video having ID: ' + record.ID, new Date())
+            console.log('generated subtitle for video having ID: ' + record.ID, new Date())
 
-            console.log('uploading vtt for video ' + record.ID + ' to blob...', new Date())
+            console.log('uploading subtitle for video ' + record.ID + ' to blob...', new Date())
             var location = __dirname + '/contents/';
             var subtitleFileNameInLocal = blobName.toLowerCase().replace('mp4', 'srt');
             var subtitleFileNameForContainer = record.ID.concat('.' + config.SubtitleGenerationFormat);
-            uploadVTTToBlob(location, subtitleFileNameInLocal, subtitleFileNameForContainer);
+            uploadVTTToBlob(location, subtitleFileNameInLocal, subtitleFileNameForContainer, record.ContentBlobName);
             //for updating record to transcribed in database
             processCallback(record, {
                 status: 1
@@ -113,16 +108,19 @@ function downloadAsset(record, containerName, blobName) {
     return result;
 }
 
-function uploadVTTToBlob(loc, vttFileName, name) {
+function uploadVTTToBlob(loc, vttFileName, name, blobName) {
     SYNC(function () {
         var containerCreationResponse = blobSvc.createContainerIfNotExists(config.vttContainerName, function (error, result, response) {
             if (!error) {
                 console.log('container created successfully or exists already having name : ' + config.vttContainerName, new Date())
-                console.log('uploading vtt file to blob having location ' + loc)
+                console.log('uploading subtitle file to blob having location ' + loc)
                 blobSvc.createBlockBlobFromLocalFile(config.vttContainerName, name, loc + vttFileName, function (error, result, response) {
                     if (!error) {
-                        console.log('uploaded file to blob having local location as ' + loc, new Date())
-                        deleteFile(__dirname + '/contents/' + record.ContentBlobName)
+                        console.log('uploaded subtitle file to container having local location as ' + loc, new Date())
+                        console.log('deleting video file from local', new Date())
+                        deleteFile(__dirname + '/contents/' + blobName)
+                        console.log('deleting subtitle file from local', new Date())
+                        deleteFile(__dirname + '/contents/' + vttFileName)
                     } else {
                         console.log('some error occured in uploading file having location: ' + loc, new Date())
                     }
