@@ -85,10 +85,10 @@ function downloadAsset(record, containerName, blobName) {
             console.log('uploading subtitle for video ' + record.ID + ' to blob...', new Date())
             var location = __dirname + '/contents/';
             var subtitleFileNameInLocal = afterRenaming
-                                            .toLowerCase().replace('mp4', config.SubtitleGenerationFormat);
+                .toLowerCase().replace('mp4', config.SubtitleGenerationFormat);
             var subtitleFileNameForContainer = record.ID.concat('.' + config.SubtitleGenerationFormat);
 
-            uploadVTTToBlob(location, subtitleFileNameInLocal, subtitleFileNameForContainer, record.ContentBlobName);
+            uploadVTTToBlob(location, subtitleFileNameInLocal, subtitleFileNameForContainer, afterRenaming);
             //for updating record to transcribed in database
             processCallback(record, {
                 status: 1
@@ -106,23 +106,25 @@ function downloadAsset(record, containerName, blobName) {
     return result;
 }
 
-function uploadVTTToBlob(loc, vttFileName, name, blobName) {
+function uploadVTTToBlob(loc, vttFileName, name, localAfterRenaming) {
     var containerCreationResponse = blobSvc.createContainerIfNotExists(config.vttContainerName, function (error, result, response) {
         if (!error) {
             console.log('container created successfully or exists already having name : ' + config.vttContainerName, new Date())
             console.log('uploading subtitle file to blob having location ' + loc)
-            blobSvc.createBlockBlobFromLocalFile(config.vttContainerName, name, loc + vttFileName, function (error, result, response) {
-                if (!error) {
-                    console.log('uploaded subtitle file to container having local location as ' + loc, new Date())
-                    console.log('deleting video file from local', new Date())
-                    deleteFile(__dirname + '/contents/' + blobName)
-                    console.log('deleting subtitle file from local', new Date())
-                    deleteFile(__dirname + '/contents/' + vttFileName)
-                } else {
-                    console.log('some error occured in uploading file having location: ' + loc, new Date())
-                }
-                toBeProcessed -= 1;
-            });
+            SYNC(function () {
+                blobSvc.createBlockBlobFromLocalFile(config.vttContainerName, name, loc + vttFileName, function (error, result, response) {
+                    if (!error) {
+                        console.log('uploaded subtitle file to container having local location as ' + loc, new Date())
+                        console.log('deleting video file from local', new Date())
+                        deleteFile(__dirname + '/contents/' + localAfterRenaming)
+                        console.log('deleting subtitle file from local', new Date())
+                        deleteFile(__dirname + '/contents/' + vttFileName)
+                    } else {
+                        console.log('some error occured in uploading file having location: ' + loc, new Date())
+                    }
+                    toBeProcessed -= 1;
+                });
+            })
         }
     });
 }
@@ -148,6 +150,6 @@ function processForNaming(previousName) {
 }
 
 function getNameWithoutSpecialChars(previousName) {
-    var res= previousName.replace(/[^0-9a-zA-Z\.]/g, '');
+    var res = previousName.replace(/[^0-9a-zA-Z\.]/g, '');
     return res;
 }
