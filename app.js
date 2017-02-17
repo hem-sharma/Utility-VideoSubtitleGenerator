@@ -150,6 +150,6 @@ function processForNaming(previousName) {
 }
 
 function getNameWithoutSpecialChars(previousName) {
-    var res = previousName.replace(/[^0-9a-zA-Z\.]/g, '');
+    var res = previousName.replace(/[^0-9a-zA-Z\.]/g, '').toLowerCase();
     return res;
 }
