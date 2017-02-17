@@ -31,9 +31,7 @@ function fetchRecords() {
                     console.log('found ' + recordset.length + ' records', new Date())
                     toBeProcessed = recordset.length;
                     for (var item in recordset) {
-                        SYNC(function () {
-                            var response = processVideo(recordset[item])
-                        })
+                        var response = processVideo(recordset[item])
                     }
                 }).catch(function (err) {
                     console.log(err);
@@ -48,15 +46,11 @@ function fetchRecords() {
 };
 
 function processVideo(record, callback) {
-    SYNC(function () {
-        console.log('processing video having ID: ' + record.ID, new Date());
-        // record.AssetId='0184b983-4f0d-417b-8e0c-4c85d3e488ca';
-        // record.ContentBlobName='iPhone8-InnovativeScreen_201702141318120247.mp4';
-        var blobName = record.ContentBlobName,
-            conSplitArray = record.AssetId.split(':'),
-            containerName = 'asset-' + conSplitArray[conSplitArray.length - 1];
-        var downloaded = downloadAsset(record, containerName, blobName);
-    })
+    console.log('processing video having ID: ' + record.ID, new Date());
+    var blobName = record.ContentBlobName,
+        conSplitArray = record.AssetId.split(':'),
+        containerName = 'asset-' + conSplitArray[conSplitArray.length - 1];
+    var downloaded = downloadAsset(record, containerName, blobName);
 }
 
 function processCallback(item, res) {
@@ -109,26 +103,24 @@ function downloadAsset(record, containerName, blobName) {
 }
 
 function uploadVTTToBlob(loc, vttFileName, name, blobName) {
-    SYNC(function () {
-        var containerCreationResponse = blobSvc.createContainerIfNotExists(config.vttContainerName, function (error, result, response) {
-            if (!error) {
-                console.log('container created successfully or exists already having name : ' + config.vttContainerName, new Date())
-                console.log('uploading subtitle file to blob having location ' + loc)
-                blobSvc.createBlockBlobFromLocalFile(config.vttContainerName, name, loc + vttFileName, function (error, result, response) {
-                    if (!error) {
-                        console.log('uploaded subtitle file to container having local location as ' + loc, new Date())
-                        console.log('deleting video file from local', new Date())
-                        deleteFile(__dirname + '/contents/' + blobName)
-                        console.log('deleting subtitle file from local', new Date())
-                        deleteFile(__dirname + '/contents/' + vttFileName)
-                    } else {
-                        console.log('some error occured in uploading file having location: ' + loc, new Date())
-                    }
-                    toBeProcessed -= 1;
-                });
-            }
-        });
-    })
+    var containerCreationResponse = blobSvc.createContainerIfNotExists(config.vttContainerName, function (error, result, response) {
+        if (!error) {
+            console.log('container created successfully or exists already having name : ' + config.vttContainerName, new Date())
+            console.log('uploading subtitle file to blob having location ' + loc)
+            blobSvc.createBlockBlobFromLocalFile(config.vttContainerName, name, loc + vttFileName, function (error, result, response) {
+                if (!error) {
+                    console.log('uploaded subtitle file to container having local location as ' + loc, new Date())
+                    console.log('deleting video file from local', new Date())
+                    deleteFile(__dirname + '/contents/' + blobName)
+                    console.log('deleting subtitle file from local', new Date())
+                    deleteFile(__dirname + '/contents/' + vttFileName)
+                } else {
+                    console.log('some error occured in uploading file having location: ' + loc, new Date())
+                }
+                toBeProcessed -= 1;
+            });
+        }
+    });
 }
 
 function generateVtt(loc, cmd) {
