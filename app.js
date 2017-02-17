@@ -93,8 +93,9 @@ function downloadAsset(record, containerName, blobName) {
 
             console.log('uploading vtt for video ' + record.ID + ' to blob...', new Date())
             var location = __dirname + '/contents/';
-            var vttFileName = record.ID.concat('.' + config.SubtitleGenerationFormat);
-            uploadVTTToBlob(location, vttFileName);
+            var subtitleFileNameInLocal = blobName.replace('mp4', 'srt');
+            var subtitleFileNameForContainer = record.ID.concat('.' + config.SubtitleGenerationFormat);
+            uploadVTTToBlob(location, srtFileNameInLocal, subtitleFileNameForContainer);
             //for updating record to transcribed in database
             processCallback(record, {
                 status: 1
@@ -112,13 +113,13 @@ function downloadAsset(record, containerName, blobName) {
     return result;
 }
 
-function uploadVTTToBlob(loc, vttFileName) {
+function uploadVTTToBlob(loc, vttFileName, name) {
     SYNC(function () {
         var containerCreationResponse = blobSvc.createContainerIfNotExists(config.vttContainerName, function (error, result, response) {
             if (!error) {
                 console.log('container created successfully or exists already having name : ' + config.vttContainerName, new Date())
                 console.log('uploading vtt file to blob having location ' + loc)
-                blobSvc.createBlockBlobFromLocalFile(config.vttContainerName, vttFileName, loc + vttFileName, function (error, result, response) {
+                blobSvc.createBlockBlobFromLocalFile(config.vttContainerName, name, loc + vttFileName, function (error, result, response) {
                     if (!error) {
                         console.log('uploaded file to blob having local location as ' + loc, new Date())
                         deleteFile(__dirname + '/contents/' + record.ContentBlobName)

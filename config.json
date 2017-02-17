@@ -8,7 +8,7 @@
     "mediaStorageAccountKey": "56FHn+jPDHcFt+YXSlWFimiJ5ON9/QzkonxXPfQEVVvcx2ihyiSeRk1J6nePtcQrdH4/B8hMqLa7vMt+0buO5g==",
     "fetchRecordsCmd": "select * from posts where IsTranslated=0 and ContentBlobName is not null",
     "updateRecordCmd": "update posts set IsTranslated=1 where ID=",
-    "vttContainerName": "vttcontainer",
+    "vttContainerName": "vttfiles",
     "JobSchedulingInMS": 60000,
     "SubtitleGenerationFormat": "srt"
 }
