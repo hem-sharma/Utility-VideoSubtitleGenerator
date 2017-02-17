@@ -93,9 +93,9 @@ function downloadAsset(record, containerName, blobName) {
 
             console.log('uploading vtt for video ' + record.ID + ' to blob...', new Date())
             var location = __dirname + '/contents/';
-            var subtitleFileNameInLocal = blobName.replace('mp4', 'srt');
+            var subtitleFileNameInLocal = blobName.toLowerCase().replace('mp4', 'srt');
             var subtitleFileNameForContainer = record.ID.concat('.' + config.SubtitleGenerationFormat);
-            uploadVTTToBlob(location, srtFileNameInLocal, subtitleFileNameForContainer);
+            uploadVTTToBlob(location, subtitleFileNameInLocal, subtitleFileNameForContainer);
             //for updating record to transcribed in database
             processCallback(record, {
                 status: 1
