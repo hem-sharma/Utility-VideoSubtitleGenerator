@@ -43,7 +43,7 @@ function fetchRecords() {
     } catch (e) {
         console.log(e);
     }
-};
+}
 
 function processVideo(record, callback) {
     console.log('processing video having ID: ' + record.ID, new Date());
@@ -74,16 +74,20 @@ function downloadAsset(record, containerName, blobName) {
     result = blobSvc.getBlobToLocalFile(containerName, blobName, __dirname + '/contents/' + blobName, function (error, result, response) {
         if (!error) {
             console.log('downloaded video having ID: ' + record.ID, new Date())
-            var loc = __dirname + '/contents/' + blobName;
             console.log('running autosub...', new Date())
+
+            //rename any special character in blobname for autosub
+            var afterRenaming = processForNaming(blobName);
+            var loc = __dirname + '/contents/' + afterRenaming;
             var cmd = 'autosub ' + '-S ' + sourceLanguage + ' -F ' + config.SubtitleGenerationFormat + ' ' + loc;
             var response = generateVtt(loc, cmd);
             console.log('generated subtitle for video having ID: ' + record.ID, new Date())
-
             console.log('uploading subtitle for video ' + record.ID + ' to blob...', new Date())
             var location = __dirname + '/contents/';
-            var subtitleFileNameInLocal = blobName.toLowerCase().replace('mp4', 'srt');
+            var subtitleFileNameInLocal = afterRenaming
+                                            .toLowerCase().replace('mp4', config.SubtitleGenerationFormat);
             var subtitleFileNameForContainer = record.ID.concat('.' + config.SubtitleGenerationFormat);
+
             uploadVTTToBlob(location, subtitleFileNameInLocal, subtitleFileNameForContainer, record.ContentBlobName);
             //for updating record to transcribed in database
             processCallback(record, {
@@ -133,4 +137,17 @@ function generateVtt(loc, cmd) {
 function deleteFile(loc) {
     fs.unlinkSync(loc);
     console.log('successfully deleted ' + loc, new Date());
+}
+
+function processForNaming(previousName) {
+    var previousLoc = __dirname + '/contents/' + previousName;
+    var newName = getNameWithoutSpecialChars(previousName);
+    var newLoc = __dirname + '/contents/' + newName;
+    fs.renameSync(previousLoc, newLoc);
+    return newName;
+}
+
+function getNameWithoutSpecialChars(previousName) {
+    var res= previousName.replace(/[^0-9a-zA-Z\.]/g, '');
+    return res;
 }
